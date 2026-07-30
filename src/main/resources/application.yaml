@@ -1,0 +1,12 @@
+server:
+  port: ${PORT:8081}
+
+spring:
+  application:
+    name: recruitment-management-system
+  profiles:
+    active: local
+  security:
+    user:
+      name: admin
+      password: admin123

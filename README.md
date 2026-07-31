@@ -4,7 +4,11 @@ A REST API for managing the end-to-end recruitment pipeline: companies, job post
 
 Built with **Spring Boot 4.1.0 / Java 17**, **JPA/Hibernate**, **JWT**, **MapStruct**, **Swagger/OpenAPI**, H2 for local development and **PostgreSQL** (via Docker) for realistic runs.
 
-> **Live demo:** https://recruitment-management-system-izme.onrender.com
+> **Live demo (Swagger UI):** https://recruitment-management-system-izme.onrender.com/swagger-ui/index.html
+>
+> **Deep dive:** see [HOW_IT_WORKS.md](HOW_IT_WORKS.md) for an architecture and request-flow walkthrough.
+>
+> **Postman guide:** see [POSTMAN_GUIDE.md](POSTMAN_GUIDE.md) for step-by-step API walkthroughs.
 
 ---
 

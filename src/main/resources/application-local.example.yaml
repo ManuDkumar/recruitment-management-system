@@ -11,3 +11,12 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+
+app:
+  jwt:
+    secret: mySecretKeyForJWTTokenGenerationMustBe256BitsLongEnough12345
+    expiration-ms: 86400000
+
+logging:
+  level:
+    org.springframework.security: DEBUG

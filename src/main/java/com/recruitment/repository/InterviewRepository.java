@@ -1,5 +1,6 @@
 package com.recruitment.repository;
 
+import com.recruitment.enums.InterviewStatus;
 import com.recruitment.model.Interview;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -8,4 +9,5 @@ import java.util.List;
 public interface InterviewRepository extends JpaRepository<Interview, Long> {
     List<Interview> findByApplicationId(Long applicationId);
     List<Interview> findByInterviewerId(Long interviewerId);
+    long countByStatus(InterviewStatus status);
 }

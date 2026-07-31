@@ -28,10 +28,18 @@ public class DataInitializer implements ApplicationRunner {
     @Value("${app.admin.password:admin123}")
     private String adminPassword;
 
+    @Value("${app.interviewer.email:interviewer@recruitment.com}")
+    private String interviewerEmail;
+
+    @Value("${app.interviewer.password:interviewer123}")
+    private String interviewerPassword;
+
     @Override
     public void run(ApplicationArguments args) {
         Role adminRole = roleRepository.findByName(RoleType.ADMIN)
                 .orElseGet(() -> roleRepository.save(Role.builder().name(RoleType.ADMIN).build()));
+        Role interviewerRole = roleRepository.findByName(RoleType.INTERVIEWER)
+                .orElseGet(() -> roleRepository.save(Role.builder().name(RoleType.INTERVIEWER).build()));
 
         if (!userRepository.existsByEmail(adminEmail)) {
             userRepository.save(User.builder()
@@ -39,6 +47,15 @@ public class DataInitializer implements ApplicationRunner {
                     .email(adminEmail)
                     .password(passwordEncoder.encode(adminPassword))
                     .roles(Set.of(adminRole))
+                    .build());
+        }
+
+        if (!userRepository.existsByEmail(interviewerEmail)) {
+            userRepository.save(User.builder()
+                    .name("Test Interviewer")
+                    .email(interviewerEmail)
+                    .password(passwordEncoder.encode(interviewerPassword))
+                    .roles(Set.of(interviewerRole))
                     .build());
         }
     }

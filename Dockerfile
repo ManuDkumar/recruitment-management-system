@@ -1,8 +1,14 @@
-# Artifact-based image: build the jar first with `mvnw package` (or in CI),
-# then containerize the artifact. Fast and reliable compared to building
-# inside the container, where Maven must re-download all dependencies.
+# Multi-stage build so the image can be built from a fresh clone
+# on any cloud builder (Render, GitHub Actions, CI).
+FROM maven:3.9-eclipse-temurin-17 AS build
+WORKDIR /app
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+COPY src ./src
+RUN mvn package -DskipTests -B
+
 FROM eclipse-temurin:17-jre
 WORKDIR /app
-COPY target/recruitment-app.jar app.jar
+COPY --from=build /app/target/recruitment-app.jar app.jar
 EXPOSE 8081
 ENTRYPOINT ["java", "-jar", "app.jar"]

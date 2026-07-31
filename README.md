@@ -155,8 +155,7 @@ There are two ways to use PostgreSQL.
 ### A. Full stack (app + database) in Docker
 
 ```bash
-./mvnw package -DskipTests     # build the jar (image is artifact-based)
-docker compose up -d           # builds image, starts postgres + app
+docker compose up -d           # multi-stage build (compiles jar in-container), starts postgres + app
 ```
 
 - App: **http://localhost:8081** (container)

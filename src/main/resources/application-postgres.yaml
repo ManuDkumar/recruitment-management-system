@@ -4,6 +4,10 @@ spring:
     driver-class-name: org.postgresql.Driver
     username: ${DB_USERNAME:recruitment}
     password: ${DB_PASSWORD:recruitment}
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
   jpa:
     hibernate:
       ddl-auto: update

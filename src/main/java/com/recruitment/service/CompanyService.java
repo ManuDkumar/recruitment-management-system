@@ -9,12 +9,14 @@ import com.recruitment.model.User;
 import com.recruitment.repository.CompanyRepository;
 import com.recruitment.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CompanyService {
 
     private final CompanyRepository companyRepository;
@@ -27,14 +29,17 @@ public class CompanyService {
 
         Company company = companyMapper.toEntity(request);
         company.setCreatedBy(creator);
-
-        return companyMapper.toResponse(companyRepository.save(company));
+        Company saved = companyRepository.save(company);
+        log.info("Company created: id={} name={} by={}", saved.getId(), saved.getName(), creatorEmail);
+        return companyMapper.toResponse(saved);
     }
 
     public CompanyResponse update(Long id, CompanyRequest request) {
         Company company = getEntity(id);
         companyMapper.updateEntity(request, company);
-        return companyMapper.toResponse(companyRepository.save(company));
+        Company saved = companyRepository.save(company);
+        log.info("Company updated: id={} name={}", saved.getId(), saved.getName());
+        return companyMapper.toResponse(saved);
     }
 
     public CompanyResponse getById(Long id) {
@@ -48,7 +53,9 @@ public class CompanyService {
     }
 
     public void delete(Long id) {
-        companyRepository.delete(getEntity(id));
+        Company company = getEntity(id);
+        companyRepository.delete(company);
+        log.info("Company deleted: id={} name={}", id, company.getName());
     }
 
     private Company getEntity(Long id) {

@@ -12,6 +12,7 @@ import com.recruitment.model.User;
 import com.recruitment.repository.FeedbackRepository;
 import com.recruitment.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FeedbackService {
 
     private final FeedbackRepository feedbackRepository;
@@ -48,7 +50,10 @@ public class FeedbackService {
                 .interview(interview)
                 .user(actor)
                 .build();
-        return feedbackMapper.toResponse(feedbackRepository.save(feedback));
+        Feedback saved = feedbackRepository.save(feedback);
+        log.info("Feedback submitted: id={} interviewId={} rating={} by={}",
+                saved.getId(), interviewId, request.rating(), actorEmail);
+        return feedbackMapper.toResponse(saved);
     }
 
     @Transactional(readOnly = true)

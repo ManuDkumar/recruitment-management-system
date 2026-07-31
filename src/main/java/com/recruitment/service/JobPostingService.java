@@ -10,6 +10,7 @@ import com.recruitment.model.JobPosting;
 import com.recruitment.repository.CompanyRepository;
 import com.recruitment.repository.JobPostingRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -19,6 +20,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class JobPostingService {
 
     private static final Map<JobStatus, Set<JobStatus>> ALLOWED_TRANSITIONS = Map.of(
@@ -36,8 +38,9 @@ public class JobPostingService {
 
         JobPosting jobPosting = jobPostingMapper.toEntity(request);
         jobPosting.setCompany(company);
-
-        return jobPostingMapper.toResponse(jobPostingRepository.save(jobPosting));
+        JobPosting saved = jobPostingRepository.save(jobPosting);
+        log.info("Job posting created: id={} title={} companyId={}", saved.getId(), saved.getTitle(), company.getId());
+        return jobPostingMapper.toResponse(saved);
     }
 
     public JobPostingResponse update(Long id, JobPostingRequest request) {
@@ -49,6 +52,7 @@ public class JobPostingService {
         }
         jobPosting.setUpdatedAt(LocalDateTime.now());
 
+        log.info("Job posting updated: id={} title={}", id, jobPosting.getTitle());
         return jobPostingMapper.toResponse(jobPostingRepository.save(jobPosting));
     }
 
@@ -65,6 +69,7 @@ public class JobPostingService {
         jobPosting.setStatus(newStatus);
         jobPosting.setUpdatedAt(LocalDateTime.now());
 
+        log.info("Job posting status changed: id={} {} -> {}", id, currentStatus, newStatus);
         return jobPostingMapper.toResponse(jobPostingRepository.save(jobPosting));
     }
 
@@ -87,7 +92,9 @@ public class JobPostingService {
     }
 
     public void delete(Long id) {
-        jobPostingRepository.delete(getEntity(id));
+        JobPosting jobPosting = getEntity(id);
+        jobPostingRepository.delete(jobPosting);
+        log.info("Job posting deleted: id={} title={}", id, jobPosting.getTitle());
     }
 
     private JobPosting getEntity(Long id) {

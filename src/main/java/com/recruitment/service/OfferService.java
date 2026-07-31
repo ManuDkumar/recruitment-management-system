@@ -13,6 +13,7 @@ import com.recruitment.model.Offer;
 import com.recruitment.repository.ApplicationRepository;
 import com.recruitment.repository.OfferRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OfferService {
 
     private final OfferRepository offerRepository;
@@ -44,7 +46,9 @@ public class OfferService {
                 .status(OfferStatus.PENDING)
                 .application(application)
                 .build();
-        return offerMapper.toResponse(offerRepository.save(offer));
+        Offer saved = offerRepository.save(offer);
+        log.info("Offer created: id={} applicationId={} salary={}", saved.getId(), applicationId, request.salary());
+        return offerMapper.toResponse(saved);
     }
 
     @Transactional(readOnly = true)
@@ -76,6 +80,7 @@ public class OfferService {
 
         offer.setStatus(request.status());
         OfferResponse response = offerMapper.toResponse(offerRepository.save(offer));
+        log.info("Offer {} {} by {}", offer.getId(), request.status(), email);
 
         ApplicationStatus next = request.status() == OfferStatus.ACCEPTED
                 ? ApplicationStatus.ACCEPTED

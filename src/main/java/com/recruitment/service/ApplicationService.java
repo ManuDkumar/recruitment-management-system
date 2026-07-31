@@ -14,6 +14,7 @@ import com.recruitment.repository.ApplicationRepository;
 import com.recruitment.repository.CandidateRepository;
 import com.recruitment.repository.JobPostingRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ApplicationService {
 
     private static final Map<ApplicationStatus, Set<ApplicationStatus>> ALLOWED_TRANSITIONS = Map.of(
@@ -58,7 +60,9 @@ public class ApplicationService {
                 .jobPosting(jobPosting)
                 .status(ApplicationStatus.APPLIED)
                 .build();
-        return applicationMapper.toResponse(applicationRepository.save(application));
+        Application saved = applicationRepository.save(application);
+        log.info("Candidate {} applied to job {} (applicationId={})", email, jobPosting.getId(), saved.getId());
+        return applicationMapper.toResponse(saved);
     }
 
     @Transactional(readOnly = true)
@@ -103,6 +107,7 @@ public class ApplicationService {
         }
         application.setStatus(target);
         application.setUpdatedAt(java.time.LocalDateTime.now());
+        log.info("Application {} status changed: {} -> {}", id, application.getStatus(), target);
         return applicationMapper.toResponse(applicationRepository.save(application));
     }
 

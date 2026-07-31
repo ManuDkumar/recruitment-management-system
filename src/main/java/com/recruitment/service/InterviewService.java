@@ -17,6 +17,7 @@ import com.recruitment.repository.ApplicationRepository;
 import com.recruitment.repository.InterviewRepository;
 import com.recruitment.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class InterviewService {
 
     private static final Set<ApplicationStatus> SCHEDULABLE_STATUSES =
@@ -59,7 +61,10 @@ public class InterviewService {
                 .application(application)
                 .interviewer(interviewer)
                 .build();
-        return interviewMapper.toResponse(interviewRepository.save(interview));
+        Interview saved = interviewRepository.save(interview);
+        log.info("Interview scheduled: id={} type={} applicationId={} interviewer={} by={}",
+                saved.getId(), saved.getType(), applicationId, interviewer.getEmail(), actorEmail);
+        return interviewMapper.toResponse(saved);
     }
 
     @Transactional(readOnly = true)
@@ -94,6 +99,7 @@ public class InterviewService {
             throw new IllegalArgumentException("Interview status can only be set to COMPLETED or CANCELLED");
         }
         interview.setStatus(request.status());
+        log.info("Interview {} status changed to {} by {}", interviewId, request.status(), actorEmail);
         return interviewMapper.toResponse(interviewRepository.save(interview));
     }
 

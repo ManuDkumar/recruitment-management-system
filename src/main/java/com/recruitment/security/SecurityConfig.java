@@ -20,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final RequestIdFilter requestIdFilter;
     private final CustomUserDetailsService customUserDetailsService;
 
     @Bean
@@ -44,7 +45,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/interviewer/**").hasAnyRole("ADMIN", "INTERVIEWER")
                 .anyRequest().authenticated()
             )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(requestIdFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }

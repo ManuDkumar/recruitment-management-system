@@ -4,6 +4,8 @@ A REST API for managing the end-to-end recruitment pipeline: companies, job post
 
 Built with **Spring Boot 4.1.0 / Java 17**, **JPA/Hibernate**, **JWT**, **MapStruct**, **Swagger/OpenAPI**, H2 for local development and **PostgreSQL** (via Docker) for realistic runs.
 
+> **Live demo:** https://recruitment-management-system-izme.onrender.com
+
 ---
 
 ## Table of Contents
@@ -18,8 +20,9 @@ Built with **Spring Boot 4.1.0 / Java 17**, **JPA/Hibernate**, **JWT**, **MapStr
 8. [API Reference](#api-reference)
 9. [Business Rules & State Machines](#business-rules--state-machines)
 10. [Testing](#testing)
-11. [Deployment Notes](#deployment-notes)
-12. [Author](#author)
+11. [Logging](#logging)
+12. [Deployment Notes](#deployment-notes)
+13. [Author](#author)
 
 ---
 
@@ -35,6 +38,7 @@ Built with **Spring Boot 4.1.0 / Java 17**, **JPA/Hibernate**, **JWT**, **MapStr
 - **Offers** — created by recruiters, accepted/declined by candidates (cascades to the application)
 - **Dashboard statistics** for admin and recruiter
 - **Swagger/OpenAPI** UI with bearer-token support
+- **Structured SLF4J logging** with business-event logs, per-environment levels and **correlation IDs** (`X-Request-Id`)
 - **Global exception handling** with consistent error responses
 - Two databases: H2 (zero-config local dev) and PostgreSQL (Docker/production-like)
 
@@ -50,6 +54,7 @@ Built with **Spring Boot 4.1.0 / Java 17**, **JPA/Hibernate**, **JWT**, **MapStr
 | ORM | Spring Data JPA + Hibernate |
 | Auth | JWT (jjwt 0.12.6) + Spring Security 7 |
 | Mapping | MapStruct 1.6.3 + Lombok |
+| Logging | SLF4J + Logback (business events, MDC correlation IDs) |
 | API Docs | springdoc-openapi 2.7.0 |
 | Tests | JUnit 5, Mockito, Spring Boot Test (MockMvc) |
 | Build | Maven (mvnw wrapper) |
@@ -69,19 +74,21 @@ src/main/java/com/recruitment/
 ├── mapper/          # MapStruct mappers (Entity <-> DTO)
 ├── model/           # JPA entities: User, Role, Candidate, Company, JobPosting, Application, Interview, Feedback, Offer
 ├── repository/      # Spring Data JPA repositories
-├── security/        # JwtTokenProvider, JwtAuthenticationFilter, CustomUserDetailsService, SecurityConfig
-└── service/         # Business logic
+├── security/        # JwtTokenProvider, JwtAuthenticationFilter, RequestIdFilter, CustomUserDetailsService, SecurityConfig
+└── service/         # Business logic (SLF4J business-event logs)
 src/main/resources/
 ├── application.yaml                    # Base config (port, profiles, env-driven secrets)
 ├── application-local.yaml              # H2 dev config (GITIGNORED)
 ├── application-local.example.yaml      # Template for the local profile
-└── application-postgres.yaml           # PostgreSQL profile (env-driven datasource)
+├── application-postgres.yaml           # PostgreSQL profile (env-driven datasource)
+└── logback-spring.xml                  # Console appender, MDC requestId pattern, env-driven level
 src/test/java/com/recruitment/
 ├── AuthFlowIntegrationTest.java
 └── service/         # JobPostingServiceTest, ApplicationServiceTest, OfferServiceTest
 src/test/resources/application-test.yaml
-Dockerfile                              # Artifact-based image
+Dockerfile                              # Multi-stage image (builds jar in-container)
 docker-compose.yml                      # postgres + app stack
+render.yaml                             # Render Blueprint (web service + secrets)
 .env.example                            # Template for deployment secrets (real .env is gitignored)
 ```
 
@@ -195,6 +202,7 @@ All secrets are **environment-variable driven** with dev defaults. Production va
 | `JWT_SECRET` | dev placeholder | JWT signing key (≥32 bytes) |
 | `JWT_EXPIRATION_MS` | `86400000` | Token lifetime (1 day) |
 | `UPLOAD_DIR` | `uploads` | Resume storage directory |
+| `LOG_LEVEL` | `INFO` | Log level for `com.recruitment` (e.g. `DEBUG`, `WARN`) |
 | `POSTGRES_DB` / `POSTGRES_USER` / `POSTGRES_PASSWORD` | `recruitment` | PostgreSQL container init (docker-compose) |
 
 **HTTPS:** terminate TLS at a reverse proxy (nginx/Caddy/Traefik), or configure Spring Boot SSL directly — see the commented `server.ssl.*` block in `application.yaml`.
@@ -340,6 +348,26 @@ Offers can only be created for applications at `OFFERED` status; one offer per a
 - **Context test:** `RecruitmentManagementSystemApplicationTests`.
 
 Tests use a dedicated in-memory H2 profile (`application-test.yaml`), so no external services are required.
+
+---
+
+## Logging
+
+The project uses **SLF4J** (interface) with **Logback** (implementation) — included by default in Spring Boot, no extra dependencies.
+
+- **Business-event logs** — key actions are logged at `INFO` with the relevant identifiers, e.g. `New user registered: <email>`, `Candidate <email> applied to job <id>`, `Offer <id> ACCEPTED by <email>`.
+- **Error logs** — the global exception handler logs full stack traces at `ERROR`.
+- **No secrets** — passwords, tokens and sensitive data are never logged (message parameters use `{}` placeholders).
+- **Correlation IDs** — every request gets an ID (from the `X-Request-Id` header, or a generated UUID) stored in the MDC and printed on every log line, so you can trace a single request through all services. The same ID is echoed back in the `X-Request-Id` response header.
+- **Levels per environment** — `logback-spring.xml` sets the `com.recruitment` level from the `LOG_LEVEL` env var (default `INFO`); local dev additionally enables `DEBUG` via `application-local.yaml`.
+
+Example output:
+
+```
+2026-07-31T20:41:25.181+05:30 INFO  [http-nio-8081-exec-1] c.r.service.AuthService [9da99047-fd0b-40fe-8687-3a3c10ed14dd] - New user registered: logtest@example.com
+```
+
+On Render, these logs are captured automatically in the **Logs** tab of your service.
 
 ---
 

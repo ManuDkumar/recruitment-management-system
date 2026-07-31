@@ -11,6 +11,7 @@ import com.recruitment.repository.RoleRepository;
 import com.recruitment.repository.UserRepository;
 import com.recruitment.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
 
     private final UserRepository userRepository;
@@ -42,6 +44,7 @@ public class AuthService {
 
         userRepository.save(user);
 
+        log.info("New user registered: {}", user.getEmail());
         return generateAuthResponse(user);
     }
 
@@ -53,6 +56,7 @@ public class AuthService {
             throw new BadCredentialsException("Invalid email or password");
         }
 
+        log.info("User logged in: {}", request.email());
         return generateAuthResponse(user);
     }
 

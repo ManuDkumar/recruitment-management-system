@@ -9,6 +9,7 @@ import com.recruitment.model.User;
 import com.recruitment.repository.CandidateRepository;
 import com.recruitment.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CandidateService {
 
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("pdf", "doc", "docx");
@@ -47,6 +49,7 @@ public class CandidateService {
             fileStorageService.delete(candidate.getResumePath());
         }
         candidate.setResumePath(fileStorageService.store(file, "candidate-" + candidate.getId()));
+        log.info("Resume uploaded for candidate {} (file {})", email, candidate.getResumePath());
         return candidateMapper.toResponse(candidateRepository.save(candidate));
     }
 

@@ -4,6 +4,7 @@ import com.recruitment.dto.AuthResponse;
 import com.recruitment.dto.LoginRequest;
 import com.recruitment.dto.RegisterRequest;
 import com.recruitment.enums.RoleType;
+import com.recruitment.mapper.UserMapper;
 import com.recruitment.model.Role;
 import com.recruitment.model.User;
 import com.recruitment.repository.RoleRepository;
@@ -15,7 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +25,7 @@ public class AuthService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final UserMapper userMapper;
 
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.email())) {
@@ -35,12 +36,9 @@ public class AuthService {
                 .orElseGet(() -> roleRepository.save(
                         Role.builder().name(RoleType.CANDIDATE).build()));
 
-        User user = User.builder()
-                .name(request.name())
-                .email(request.email())
-                .password(passwordEncoder.encode(request.password()))
-                .roles(Set.of(candidateRole))
-                .build();
+        User user = userMapper.toUser(request);
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setRoles(Set.of(candidateRole));
 
         userRepository.save(user);
 
@@ -59,12 +57,8 @@ public class AuthService {
     }
 
     private AuthResponse generateAuthResponse(User user) {
-        Set<String> roles = user.getRoles().stream()
-                .map(role -> "ROLE_" + role.getName().name())
-                .collect(Collectors.toSet());
-
-        String token = jwtTokenProvider.generateToken(user.getEmail(), roles);
-
-        return new AuthResponse(token, user.getEmail(), roles);
+        AuthResponse response = userMapper.toAuthResponse(user);
+        String token = jwtTokenProvider.generateToken(user.getEmail(), response.roles());
+        return new AuthResponse(token, response.email(), response.roles());
     }
 }

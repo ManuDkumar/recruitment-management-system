@@ -8,8 +8,10 @@ import java.util.List;
 
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
     List<Application> findByCandidateId(Long candidateId);
+    List<Application> findByCandidateIdAndStatus(Long candidateId, ApplicationStatus status);
     List<Application> findByJobPostingId(Long jobPostingId);
     List<Application> findByStatus(ApplicationStatus status);
+    boolean existsByCandidateIdAndJobPostingId(Long candidateId, Long jobPostingId);
     long countByJobPostingId(Long jobPostingId);
     long countByStatus(ApplicationStatus status);
 }

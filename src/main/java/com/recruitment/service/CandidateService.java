@@ -66,7 +66,7 @@ public class CandidateService {
 
     public record ResumeFile(Resource resource, String filename) {}
 
-    private Candidate getOrCreateEntity(String email) {
+    public Candidate getOrCreateEntity(String email) {
         return candidateRepository.findByEmail(email).orElseGet(() -> {
             User user = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("User not found: " + email));
             Candidate candidate = new Candidate();

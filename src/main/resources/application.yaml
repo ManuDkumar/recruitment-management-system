@@ -1,5 +1,11 @@
 server:
   port: ${PORT:8081}
+  # HTTPS: terminate TLS at a reverse proxy (nginx/Caddy/Traefik) in front of this app.
+  # For a direct SSL setup, provide a keystore and set:
+  #   server.ssl.enabled: true
+  #   server.ssl.key-store: ${SSL_KEY_STORE}
+  #   server.ssl.key-store-password: ${SSL_KEY_STORE_PASSWORD}
+  #   server.ssl.key-alias: ${SSL_KEY_ALIAS}
 
 spring:
   application:

@@ -35,3 +35,4 @@ build/
 ### Local config ###
 src/main/resources/application-local.yaml
 uploads/
+.env

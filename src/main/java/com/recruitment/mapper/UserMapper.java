@@ -1,5 +1,6 @@
 package com.recruitment.mapper;
 
+import com.recruitment.dto.AdminUserRequest;
 import com.recruitment.dto.AuthResponse;
 import com.recruitment.dto.RegisterRequest;
 import com.recruitment.dto.UserResponse;
@@ -19,6 +20,11 @@ public interface UserMapper {
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "roles", ignore = true)
     User toUser(RegisterRequest request);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "roles", ignore = true)
+    User toUser(AdminUserRequest request);
 
     @Mapping(target = "token", ignore = true)
     AuthResponse toAuthResponse(User user);

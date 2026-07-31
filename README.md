@@ -121,7 +121,8 @@ Application ──1── Offer
 
 **How roles are assigned:**
 - **CANDIDATE** — every self-registration creates a CANDIDATE user.
-- **ADMIN / INTERVIEWER** — seeded at startup (see below); other privileged accounts are created by provisioning in the database.
+- **ADMIN / INTERVIEWER** — seeded at startup (see below).
+- **RECRUITER / INTERVIEWER / ADMIN** — an admin creates additional privileged accounts via `POST /api/admin/users` (see [API Reference](#api-reference)).
 
 ### Seeded accounts
 
@@ -229,6 +230,11 @@ All JSON endpoints require `Authorization: Bearer <token>` except `/api/auth/**`
 | Method | Path | Description |
 |---|---|---|
 | GET | `/api/me` | Current user `{id, name, email, roles}` |
+
+### Admin (user management)
+| Method | Path | Body | Description |
+|---|---|---|---|
+| POST | `/api/admin/users` | `{name, email, password, role}` | Create a privileged account (ADMIN only). Role must be `RECRUITER`, `INTERVIEWER` or `ADMIN` — `CANDIDATE` is not allowed (they self-register). Returns the created user |
 
 ### Candidate profile (self-service)
 | Method | Path | Body | Description |

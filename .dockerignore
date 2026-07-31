@@ -1,0 +1,9 @@
+target/
+.git/
+.idea/
+*.iml
+.vscode/
+uploads/
+HELP.md
+docker-compose.yml
+src/main/resources/application-local.yaml

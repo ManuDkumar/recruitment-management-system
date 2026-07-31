@@ -5,8 +5,14 @@ spring:
   application:
     name: recruitment-management-system
   profiles:
-    active: local
+    active: ${SPRING_PROFILES_ACTIVE:local}
   security:
     user:
       name: admin
       password: admin123
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:mySecretKeyForJWTTokenGenerationMustBe256BitsLongEnough12345}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+  upload-dir: ${UPLOAD_DIR:uploads}

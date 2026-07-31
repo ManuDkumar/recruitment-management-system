@@ -1,0 +1,39 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: recruitment-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-recruitment}
+      POSTGRES_USER: ${POSTGRES_USER:-recruitment}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-recruitment}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-recruitment} -d ${POSTGRES_DB:-recruitment}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    container_name: recruitment-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: postgres
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-recruitment}
+      DB_USERNAME: ${POSTGRES_USER:-recruitment}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-recruitment}
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production-at-least-32-bytes-long!}
+      UPLOAD_DIR: /uploads
+    ports:
+      - "8081:8081"
+    volumes:
+      - uploads_data:/uploads
+
+volumes:
+  postgres_data:
+  uploads_data:

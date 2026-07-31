@@ -1,4 +1,3 @@
-target/
 .git/
 .idea/
 *.iml
@@ -7,3 +6,4 @@ uploads/
 HELP.md
 docker-compose.yml
 src/main/resources/application-local.yaml
+.env

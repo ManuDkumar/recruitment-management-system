@@ -11,11 +11,16 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
 
 app:
   jwt:
     secret: mySecretKeyForJWTTokenGenerationMustBe256BitsLongEnough12345
     expiration-ms: 86400000
+  upload-dir: uploads
 
 logging:
   level:

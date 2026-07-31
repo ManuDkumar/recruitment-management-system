@@ -2,6 +2,7 @@ package com.recruitment.mapper;
 
 import com.recruitment.dto.AuthResponse;
 import com.recruitment.dto.RegisterRequest;
+import com.recruitment.dto.UserResponse;
 import com.recruitment.model.Role;
 import com.recruitment.model.User;
 import org.mapstruct.Mapper;
@@ -21,6 +22,8 @@ public interface UserMapper {
 
     @Mapping(target = "token", ignore = true)
     AuthResponse toAuthResponse(User user);
+
+    UserResponse toUserResponse(User user);
 
     default Set<String> map(Set<Role> roles) {
         return roles.stream()

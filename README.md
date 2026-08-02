@@ -6,10 +6,6 @@ Built with **Spring Boot 4.1.0 / Java 17**, **JPA/Hibernate**, **JWT**, **MapStr
 
 > **Live demo (Swagger UI):** https://recruitment-management-system-izme.onrender.com/swagger-ui/index.html
 >
-> **Deep dive:** see [HOW_IT_WORKS.md](HOW_IT_WORKS.md) for an architecture and request-flow walkthrough.
->
-> **Postman guide:** see [POSTMAN_GUIDE.md](POSTMAN_GUIDE.md) for step-by-step API walkthroughs.
-
 ---
 
 ## Table of Contents
